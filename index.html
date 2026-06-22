@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Kawaiine( •̀ ω •́ )✧ - a pink glitch art shader website."
+    />
+    <title>Kawaiine( •̀ ω •́ )✧</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Noto+Sans+SC:wght@400;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <canvas id="shader-canvas" aria-hidden="true"></canvas>
+    <div class="crt-overlay" aria-hidden="true"></div>
+
+    <header class="site-header">
+      <a class="brand" href="#top" aria-label="Kawaiine home">Kawaiine</a>
+      <nav class="nav-links" aria-label="Primary navigation">
+        <a href="#signal">Signal</a>
+        <a href="#fragments">Fragments</a>
+        <a href="#contact">Contact</a>
+      </nav>
+    </header>
+
+    <main id="top">
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero-copy">
+          <p class="signal-label">PINK SIGNAL / GLITCH MODE</p>
+          <h1 id="hero-title" class="glitch-title" data-text="Kawaiine">
+            <span class="title-word">Kawaiine</span><span id="kaomoji">( •̀ ω •́ )✧</span>
+          </h1>
+          <p class="hero-subtitle">
+            Sweet pixels, broken transmission, and a little too much pink voltage.
+          </p>
+        </div>
+      </section>
+
+      <section id="signal" class="content-band">
+        <div class="band-inner">
+          <p class="section-kicker">01 / Signal</p>
+          <h2>Kawaii after the screen starts lying.</h2>
+          <p>
+            Kawaiine mixes soft pink energy with unstable digital artifacts:
+            chromatic edges, scanlines, noisy pulses, and a title that keeps
+            blinking between confidence and panic.
+          </p>
+        </div>
+      </section>
+
+      <section id="fragments" class="fragment-grid" aria-label="Visual fragments">
+        <article>
+          <span>RGB SPLIT</span>
+          <strong>cyan shadow / magenta echo</strong>
+        </article>
+        <article>
+          <span>SCANLINE</span>
+          <strong>soft CRT pressure</strong>
+        </article>
+        <article>
+          <span>NOISE</span>
+          <strong>pink static bloom</strong>
+        </article>
+      </section>
+
+      <section id="contact" class="content-band contact-band">
+        <div class="band-inner">
+          <p class="section-kicker">02 / Transmission</p>
+          <h2>Keep the signal cute.</h2>
+          <a class="contact-link" href="mailto:hello@kawaiine.example">hello@kawaiine.example</a>
+        </div>
+      </section>
+    </main>
+
+    <script src="script.js"></script>
+  </body>
+</html>
