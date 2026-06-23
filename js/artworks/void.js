@@ -1,11 +1,20 @@
 window.KawaiineShaders.void = `${window.KawaiineShaderCommon}
-  float sphereField(vec2 p, float radius) {
-    return length(p) - radius;
+  mat2 rotate2d(float a) {
+    float s = sin(a);
+    float c = cos(a);
+    return mat2(c, -s, s, c);
   }
 
-  float boxField(vec2 p, vec2 b) {
-    vec2 q = abs(p) - b;
-    return length(max(q, 0.0)) + min(max(q.x, q.y), 0.0);
+  bool hitBox(vec3 ro, vec3 rd, vec3 halfSize, out float hitNear) {
+    vec3 invRd = 1.0 / rd;
+    vec3 t0 = (-halfSize - ro) * invRd;
+    vec3 t1 = (halfSize - ro) * invRd;
+    vec3 tMin = min(t0, t1);
+    vec3 tMax = max(t0, t1);
+    float nearT = max(max(tMin.x, tMin.y), tMin.z);
+    float farT = min(min(tMax.x, tMax.y), tMax.z);
+    hitNear = nearT;
+    return farT >= max(nearT, 0.0);
   }
 
   void main() {
@@ -13,45 +22,54 @@ window.KawaiineShaders.void = `${window.KawaiineShaderCommon}
     vec2 p = centeredUv();
     float t = u_time;
 
-    vec3 wall = vec3(0.965, 0.97, 0.965);
-    vec3 coolWhite = vec3(0.88, 0.93, 0.96);
-    vec3 warmWhite = vec3(1.0, 0.99, 0.96);
-    float labGrad = smoothstep(-1.05, 0.92, p.y);
-    vec3 color = mix(coolWhite, warmWhite, labGrad);
+    vec3 color = vec3(0.995, 0.996, 0.994);
+    float evenLight = 0.018 * smoothstep(-0.95, 0.95, p.y);
+    color += vec3(evenLight);
 
-    float roomFalloff = smoothstep(1.55, 0.2, length(p * vec2(0.78, 1.1)));
-    float floorLine = smoothstep(0.018, 0.0, abs(p.y + 0.42));
-    float floorShade = smoothstep(-0.9, -0.18, p.y);
-    color = mix(color, wall, roomFalloff * 0.42);
-    color -= vec3(0.06, 0.055, 0.05) * floorShade;
-    color -= vec3(0.045, 0.05, 0.055) * floorLine * 0.28;
+    vec2 backLeft = vec2(-0.72, 0.42);
+    vec2 backRight = vec2(0.72, 0.42);
+    vec2 frontLeft = vec2(-1.08, -0.82);
+    vec2 frontRight = vec2(1.08, -0.82);
+    float backWall = smoothstep(0.006, 0.0, abs(p.y - backLeft.y));
+    backWall *= smoothstep(backLeft.x, backLeft.x + 0.02, p.x);
+    backWall *= 1.0 - smoothstep(backRight.x - 0.02, backRight.x, p.x);
+    float leftWall = smoothstep(0.008, 0.0, abs((p.x - frontLeft.x) * (backLeft.y - frontLeft.y) - (p.y - frontLeft.y) * (backLeft.x - frontLeft.x)));
+    float rightWall = smoothstep(0.008, 0.0, abs((p.x - frontRight.x) * (backRight.y - frontRight.y) - (p.y - frontRight.y) * (backRight.x - frontRight.x)));
+    leftWall *= smoothstep(frontLeft.y, frontLeft.y + 0.02, p.y);
+    leftWall *= 1.0 - smoothstep(backLeft.y - 0.02, backLeft.y, p.y);
+    rightWall *= smoothstep(frontRight.y, frontRight.y + 0.02, p.y);
+    rightWall *= 1.0 - smoothstep(backRight.y - 0.02, backRight.y, p.y);
+    float wallLines = backWall + leftWall + rightWall;
+    color -= vec3(0.105, 0.112, 0.118) * wallLines;
 
-    float slowAir = noise(uv * vec2(2.0, 1.35) + vec2(t * 0.01, -t * 0.006));
-    float labGrain = noise(uv * vec2(70.0, 44.0));
-    color += vec3(slowAir - 0.5) * 0.018;
-    color += vec3(labGrain - 0.5) * 0.008;
+    float labGrain = noise(uv * vec2(72.0, 46.0));
+    color += vec3(labGrain - 0.5) * 0.003;
 
-    vec2 objectP = p - vec2(0.0, 0.02);
-    float phase = 0.5 + 0.5 * sin(t * 0.72);
-    float jitter =
-      (noise(vec2(atan(objectP.y, objectP.x) * 10.0, t * 8.5)) - 0.5) * 0.022 +
-      (noise(objectP * 18.0 + t * 4.0) - 0.5) * 0.012;
-    float sphere = sphereField(objectP, 0.44 + jitter);
-    float cube = boxField(objectP, vec2(0.36 + jitter * 0.5));
-    float shapeField = mix(sphere, cube, smoothstep(0.25, 0.75, phase));
-    float inside = smoothstep(0.006, -0.006, shapeField);
-    float edge = smoothstep(0.055, 0.0, abs(shapeField));
-    float outsideHalo = smoothstep(0.13, 0.0, shapeField) * (1.0 - inside);
+    float angleY = t * 1.22;
+    float angleX = t * 0.37 + 0.58;
+    float angleZ = t * 0.19 + 0.21;
 
-    vec2 shadowP = objectP - vec2(0.0, -0.48);
-    float contactShadow = exp(-dot(shadowP * vec2(1.3, 7.0), shadowP * vec2(1.3, 7.0))) * 0.34;
-    float occlusion = exp(-max(shapeField, 0.0) * 8.0) * 0.14;
-    color -= vec3(0.22, 0.24, 0.25) * contactShadow;
-    color -= vec3(0.18, 0.19, 0.2) * occlusion * (1.0 - inside);
-    color += vec3(0.04, 0.045, 0.05) * outsideHalo;
-    color += vec3(0.16, 0.17, 0.18) * edge * (1.0 - inside);
+    vec3 ro = vec3(0.0, 0.03, 2.45);
+    vec3 rd = normalize(vec3(p * vec2(1.02, 0.86), -1.7));
+    ro.xy = rotate2d(angleZ) * ro.xy;
+    rd.xy = rotate2d(angleZ) * rd.xy;
+    ro.yz = rotate2d(angleX) * ro.yz;
+    rd.yz = rotate2d(angleX) * rd.yz;
+    ro.xz = rotate2d(angleY) * ro.xz;
+    rd.xz = rotate2d(angleY) * rd.xz;
 
-    color = mix(color, vec3(0.0), inside);
+    float hitNear = 0.0;
+    bool cubeHit = hitBox(ro, rd, vec3(0.43), hitNear);
+
+    vec2 shadowP = p - vec2(0.02, -0.38);
+    float contactShadow = exp(-dot(shadowP * vec2(1.15, 7.2), shadowP * vec2(1.15, 7.2))) * 0.18;
+    color -= vec3(0.1, 0.105, 0.11) * contactShadow;
+
+    if (cubeHit) {
+      color = vec3(0.0);
+    }
+
+    color = clamp(color, 0.0, 1.0);
     gl_FragColor = vec4(color, 1.0);
   }
 `;
