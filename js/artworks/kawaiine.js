@@ -1,4 +1,6 @@
-window.KawaiineShaders.background = `${window.KawaiineShaderCommon}
+window.KawaiineShaders.kawaiine = `${window.KawaiineShaderCommon}
+  ${window.KawaiineShaderEffects.scanlines}
+
   float bands(vec2 uv, float t) {
     float row = floor(uv.y * 42.0);
     float gate = step(0.84, hash(vec2(row, floor(t * 8.0))));
@@ -34,12 +36,11 @@ window.KawaiineShaders.background = `${window.KawaiineShaderCommon}
     float signal = n1 * 0.72 + n2 * 0.28 + radial * 0.32 + tear * 0.42 + pixels * 0.16;
 
     vec3 color = palette(signal);
-    float scan = sin((v_uv.y * u_resolution.y) * PI);
-    color *= 0.82 + scan * 0.045;
     float vignette = smoothstep(1.08, 0.18, length(center));
     color *= 0.56 + vignette * 0.66;
     float sparkle = step(0.996, hash(floor(uv * 95.0) + floor(t * 10.0)));
     color += vec3(1.0, 0.78, 0.95) * sparkle * 0.5;
+    color = applyArtworkScanlines(color, 0.72);
     gl_FragColor = vec4(color, 1.0);
   }
 `;

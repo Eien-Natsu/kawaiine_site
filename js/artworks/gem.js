@@ -1,4 +1,6 @@
 window.KawaiineShaders.gem = `${window.KawaiineShaderCommon}
+  ${window.KawaiineShaderEffects.scanlines}
+
   void main() {
     vec2 p = centeredUv();
     float t = u_time;
@@ -24,6 +26,7 @@ window.KawaiineShaders.gem = `${window.KawaiineShaderCommon}
     color += vec3(0.0, 0.92, 1.0) * smoothstep(0.035, 0.0, abs(diamond - 0.78)) * 1.4;
     color *= 0.35 + pulse * 1.1;
     color = mix(vec3(0.005, 0.0, 0.015), color, body);
+    color = applyArtworkScanlines(color, 0.62);
     gl_FragColor = vec4(color, 1.0);
   }
 `;

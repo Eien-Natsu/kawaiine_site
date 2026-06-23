@@ -1,4 +1,6 @@
 window.KawaiineShaders.rainbow = `${window.KawaiineShaderCommon}
+  ${window.KawaiineShaderEffects.scanlines}
+
   void main() {
     vec2 p = centeredUv();
     float t = u_time;
@@ -11,7 +13,7 @@ window.KawaiineShaders.rainbow = `${window.KawaiineShaderCommon}
     color += vec3(1.0) * pow(max(0.0, 1.0 - length(p * vec2(0.72, 1.25))), 5.0) * 0.35;
     color += vec3(0.0, 0.95, 1.0) * step(0.992, noise(p * 70.0 + t)) * 0.75;
     color += vec3(1.0, 0.0, 0.5) * step(0.994, hash(floor(v_uv * vec2(120.0, 80.0)) + floor(t * 14.0))) * 0.85;
-    color *= 0.72 + 0.28 * sin(v_uv.y * u_resolution.y * PI);
+    color = applyArtworkScanlines(color, 0.82);
     gl_FragColor = vec4(color, 1.0);
   }
 `;

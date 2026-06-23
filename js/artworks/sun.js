@@ -1,4 +1,6 @@
 window.KawaiineShaders.sun = `${window.KawaiineShaderCommon}
+  ${window.KawaiineShaderEffects.scanlines}
+
   void main() {
     vec2 uv = v_uv;
     float t = u_time;
@@ -43,6 +45,7 @@ window.KawaiineShaders.sun = `${window.KawaiineShaderCommon}
 
     color = color / (1.0 + color * 0.2);
     color = pow(color, vec3(0.78));
+    color = applyArtworkScanlines(color, 0.28);
     gl_FragColor = vec4(color, 1.0);
   }
 `;

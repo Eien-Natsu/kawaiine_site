@@ -89,18 +89,14 @@ function createRenderer(canvas, fragmentSource) {
 }
 
 const renderers = [];
-const backgroundCanvas = document.getElementById("shader-canvas");
 const gallery = document.querySelector("[data-gallery]");
 const pageCounter = document.querySelector("[data-page-counter]");
 const pages = Array.from(document.querySelectorAll("[data-page]"));
-const exhibitCanvases = Array.from(document.querySelectorAll(".exhibit-canvas"));
+const artworkCanvases = Array.from(document.querySelectorAll("[data-piece]"));
 let activePageIndex = 0;
 
 try {
-  const background = createRenderer(backgroundCanvas, shaders.background);
-  if (background) renderers.push(background);
-
-  exhibitCanvases.forEach((canvas) => {
+  artworkCanvases.forEach((canvas) => {
     const shader = shaders[canvas.dataset.piece];
     const renderer = shader ? createRenderer(canvas, shader) : null;
     if (renderer) renderers.push(renderer);
